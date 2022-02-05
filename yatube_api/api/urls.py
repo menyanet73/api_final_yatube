@@ -1,7 +1,8 @@
-from django.urls import path, include
+from django.urls import include, path
 from rest_framework import routers
 
 from api import views
+
 
 router = routers.DefaultRouter()
 router.register(r'posts', views.PostViewSet)
@@ -10,12 +11,12 @@ router.register(
     views.CommentViewSet,
     basename='comments'
 )
-router.register(r'follows', views.FollowViewSet)
+router.register(r'follow', views.FollowViewSet)
 router.register(r'groups', views.GroupViewSet)
 
 
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.jwt')),
+    path('v1/', include('djoser.urls')),
+    path('v1/', include('djoser.urls.jwt')),
 ]

@@ -1,8 +1,15 @@
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
+from rest_framework.validators import UniqueTogetherValidator
+
+from posts.models import Comment, Follow, Group, Post, User
 
 
-from posts.models import Comment, Post, Group, Follow
+class GroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Group
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -15,7 +22,12 @@ class PostSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
+    )
+    post = serializers.PrimaryKeyRelatedField(
+        read_only=True
     )
 
     class Meta:
@@ -23,18 +35,30 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
 
 
-class GroupSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = '__all__'
-        model = Group
-
-
 class FollowSerializer(serializers.ModelSerializer):
-    follower = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
+    user = serializers.SlugRelatedField(
+        default=serializers.CurrentUserDefault(),
+        read_only=True,
+        slug_field='username'
     )
+    following = serializers.SlugRelatedField(
+        queryset=User.objects.all(),
+        slug_field='username'
+    )
+
+    def validate_following(self, following):
+        if self.context.get('request').method != 'POST':
+            return following
+        if self.context['request'].user == following:
+            raise serializers.ValidationError('Нельзя подписаться на себя!')
+        return following
 
     class Meta:
         fields = '__all__'
         model = Follow
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=['following', 'user']
+            )
+        ]
