@@ -11,7 +11,7 @@ router.register(
     views.CommentViewSet,
     basename='comments'
 )
-router.register(r'follow', views.FollowViewSet)
+router.register(r'follow', views.FollowViewSet, basename='follow')
 router.register(r'groups', views.GroupViewSet)
 
 
