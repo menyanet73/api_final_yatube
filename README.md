@@ -5,7 +5,7 @@ API социальной сети блогеров.
 
 #### Стек:
 Python3, Django 2.2, SimpleJWT, pytest
-### How start project:
+## How start project:
 
 Clone a repository and go to command line:
 
